@@ -1,0 +1,168 @@
+﻿@{
+    ViewBag.Title = "Prueba Sigma";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewBag.Title</title>
+    <meta name="description" content="Free Bootstrap 4 Template by uicookies.com">
+    <meta name="keywords" content="Free website templates, Free bootstrap themes, Free template, Free bootstrap, Free website template">
+    <link href="https://sigmabr.acemlnb.com/lt.php?s=2f55e88a0a1766b4f081a0722dc1eab0&i=151A243A9A1696" rel="stylesheet">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/estilos.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 col-xs-12 text-center form-group mt-5">
+                    <img src="https://sigmabr.acemlnb.com/lt.php?s=2f55e88a0a1766b4f081a0722dc1eab0&i=151A243A9A1694" style="width: 20%;">
+                </div>
+                <div class="col-md-12 text-center titulo mt-3">
+                    <h3>Prueba de desarrollo Sigma</h3>
+                </div>
+                <div class="col-md-12 text-center mt-3 texto">
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8"><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                </div>
+                <div class="col-md-12 mt-5 pb-5">
+                    <div class="row">
+                        <div class="col-md-1 form-group">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <img src="https://sigmabr.acemlnb.com/lt.php?s=2f55e88a0a1766b4f081a0722dc1eab0&i=151A243A9A1695" width="100%">
+                        </div>
+                        <div class="col-md-5 form-group">
+                            <form id="formulario" action="#" class="bg-white pb_form">
+                                <div class="form-group">
+                                    <label class="control-label">Departamento*</label>
+                                    <select class="form-control select" id="departamento" name="departamento" onchange="BuscarCiudades()" required>
+                                        <option value="">- Seleccionar -</option>
+                                        @foreach (var item in ViewBag.departamentos)
+                                        {
+                                            <option value="@item.Text">@item.Text</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Ciudad*</label>
+                                    <select class="form-control select" id="ciudades" name="ciudades" required>
+                                        <option value="">- Seleccionar -</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Nombre*</label>
+                                    <input autocomplete="off" type="text" class="form-control" id="nombre" name="nombre" maxlength="50" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="control-label">Correo*</label>
+                                    <input autocomplete="off" type="email" class="form-control" id="correo" name="correo" maxlength="30" required>
+                                </div>
+                                <div class="form-group text-center">
+                                    <input type="button" onclick="ValidarFormulario()" class="btn btn-primary boton" value="ENVIAR">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="~/Scripts/validate.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.select').select2();
+        });
+
+        //Metodo ajax para obtener las ciudades de un departamento
+        function BuscarCiudades() {
+
+            var departamento = $("#departamento").val();
+
+            $("#ciudades").empty();
+            $("#ciudades").append("<option value='' selected >- Seleccionar -</option>");
+
+            if (departamento != "")
+            {
+                $.ajax({
+                    url: "@Url.Action("GetCiudades")",
+                    type: "post",
+                    dataType: "json",
+                    data: { departamento: departamento },
+                    success: function (data)
+                    {
+                        if (data.rta == 0)
+                        {
+                            data.ciudades.forEach(function (a) {
+                                $("#ciudades").append("<option value='" + a + "' selected>" + a + "</option>");
+                            });
+                            $("#ciudades").val("");
+                        } else {
+                            alert(data.Msg);
+                        }
+                    },
+                    error: function (data)
+                    {
+                        alert(data);
+                    }
+                })
+            }
+        }
+
+        //Metodo ajax para guardar los contactos
+        function ValidarFormulario() {
+
+            var validador = $("#formulario").validate();
+            if (validador.form()) {
+                $.ajax({
+                    url: "@Url.Action("GuardarContacto")",
+                    type: "post",
+                    dataType: "json",
+                    data: {
+                        dpto: $("#departamento").val(),
+                        ciudad: $("#ciudades").val(),
+                        nombre: $("#nombre").val(),
+                        correo: $("#correo").val()
+                    },
+                    success: function (data)
+                    {
+                        if (data.rta == 0) {
+                            swal({
+                                title: "Exito!",
+                                text: data.Mgs,
+                                icon: "success",
+                                button: "Aceptar",
+                            }).then((value) => {
+                                location.reload();
+                            });
+                        } else {
+                            swal({
+                                title: "Error!",
+                                text: data.Mgs,
+                                icon: "error",
+                                button: "Aceptar",
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        alert(data);
+                    }
+                })
+            }
+        }
+    </script>
+</body>
+</html>
